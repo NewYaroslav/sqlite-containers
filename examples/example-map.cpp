@@ -1,26 +1,4 @@
-# SQLite Containers
-
-SQLite Containers is a lightweight header-only C++ library designed to provide seamless integration between SQLite databases and standard C++ containers, such as std::map and other associative containers. This library abstracts the complexity of database operations, allowing developers to interact with SQLite databases using familiar container interfaces. It ensures data persistence while providing robust mechanisms for synchronization between in-memory data structures and persistent storage.
-
-## Features
-
-- **Container Integration:** Supports synchronization of SQLite databases with various standard C++ containers, including std::map and other associative containers.
-- **Thread-Safety:** Built-in mechanisms to ensure thread-safe interactions with the database.
-- **Transaction Management:** Provides transaction support to ensure data integrity during complex operations.
-- **Customizable Configuration:** Allows configuration of database paths, table names, and other settings.
-- **Exception Handling:** Comprehensive exception handling to manage SQLite errors gracefully.
-- **Easy-to-Use API:** Simplified API for common database operations like insert, remove, find, sync, and clear.
-
-## Installation
-
-To use the SQLite Containers library, simply include the source files in your project and ensure that you have the SQLite3 library installed.
-
-## Usage Example
-
-Here’s a basic example demonstrating how to use MapDB with std::map:
-
-```cpp
-#include "sqlite_containers/MapDB.hpp"
+#include <sqlite_containers/MapDB.hpp>
 #include <iostream>
 #include <map>
 
@@ -104,17 +82,3 @@ int main() {
 
     return 0;
 }
-
-```
-
-## Documentation
-
-The documentation is under development.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-
-Special thanks to the SQLite development team for their work on the SQLite library.
