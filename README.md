@@ -15,12 +15,14 @@ SQLite Containers is a lightweight header-only C++ library designed to provide s
 
 To use the SQLite Containers library, simply include the source files in your project and ensure that you have the SQLite3 library installed.
 
+Ensure that SQLite is compiled with the *SQLITE_THREADSAFE=1* option to provide multithreading support.
+
 ## Usage Example
 
-Here’s a basic example demonstrating how to use MapDB with std::map:
+Here’s a basic example demonstrating how to use KeyValueDB with std::map:
 
 ```cpp
-#include "sqlite_containers/MapDB.hpp"
+#include "sqlite_containers/KeyValueDB.hpp"
 #include <iostream>
 #include <map>
 
@@ -29,9 +31,8 @@ int main() {
     sqlite_containers::Config config;
     config.db_path = "example.db";
 
-    // Create a MapDB instance
-    sqlite_containers::MapDB<int, std::string> map_db(config);
-
+    // Create a KeyValueDB instance
+    sqlite_containers::KeyValueDB<int, std::string> map_db(config);
     map_db.connect();
 
     // Insert some key-value pairs

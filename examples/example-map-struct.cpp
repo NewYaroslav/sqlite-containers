@@ -1,4 +1,4 @@
-#include <sqlite_containers/MapDB.hpp>
+#include <sqlite_containers/KeyValueDB.hpp>
 #include <iostream>
 #include <map>
 #include <vector>
@@ -24,8 +24,8 @@ int main() {
     sqlite_containers::Config config;
     config.db_path = "example_struct.db";
 
-    // Creation of MapDB instance
-    sqlite_containers::MapDB<int, MyStruct> map_db(config);
+    // Creation of KeyValueDB instance
+    sqlite_containers::KeyValueDB<int, MyStruct> map_db(config);
     map_db.connect();
 
     // Inserting several key-value pairs

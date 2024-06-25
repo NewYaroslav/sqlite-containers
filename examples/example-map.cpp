@@ -1,15 +1,14 @@
-#include <sqlite_containers/MapDB.hpp>
+#include <sqlite_containers/KeyValueDB.hpp>
 #include <iostream>
 #include <map>
 
 int main() {
     // Create a configuration for the database
     sqlite_containers::Config config;
-    config.db_path = "example.db";
+    config.db_path = "example-map.db";
 
-    // Create a MapDB instance
-    sqlite_containers::MapDB<int, std::string> map_db(config);
-
+    // Create a KeyValueDB instance
+    sqlite_containers::KeyValueDB<int, std::string> map_db(config);
     map_db.connect();
 
     // Insert some key-value pairs
