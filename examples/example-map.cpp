@@ -24,12 +24,12 @@ int main() {
         std::cout << "Key 2 not found." << std::endl;
     }
 
-    // Synchronize database to std::map
+    // Load the database contents into a std::map
     std::map<int, std::string> my_map;
-    map_db.sync_to_map(my_map);
+    map_db.load(my_map);
 
     // Print all key-value pairs
-    std::cout << "Contents of my_map after sync_to_map:" << std::endl;
+    std::cout << "Contents of my_map after load:" << std::endl;
     for (const auto& pair : my_map) {
         std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
     }
@@ -57,12 +57,12 @@ int main() {
         std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
     }
 
-    // Synchronize std::map to database
+    // Append the contents of the std::map to the database
     my_map[5] = "value5";
-    map_db.sync_to_db(my_map);
+    map_db.append(my_map);
 
     all_entries = map_db.retrieve_all<std::map>();
-    std::cout << "Contents of database after sync_to_db:" << std::endl;
+    std::cout << "Contents of database after append:" << std::endl;
     for (const auto& pair : all_entries) {
         std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
     }

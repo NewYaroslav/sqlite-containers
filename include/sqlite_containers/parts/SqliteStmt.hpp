@@ -170,9 +170,9 @@ namespace sqlite_containers {
 		}
 
 		/// \brief Binds a value to a SQLite statement.
-		/// \param index Index of the parameter to bind.
-		/// \param value The value to bind.
-		/// \return True if the value was successfully bound, otherwise false.
+        /// \param index Index of the parameter to bind.
+        /// \param value The value to bind.
+        /// \return True if the value was successfully bound, otherwise false.
 		template<typename T>
 		inline bool bind_value(const int &index, const T& value,
 				typename std::enable_if<std::is_integral<T>::value>::type* = 0) {

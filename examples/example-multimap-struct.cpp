@@ -1,38 +1,3 @@
-# SQLite Containers
-
-SQLite Containers is a lightweight header-only C++ library designed to provide seamless integration between SQLite databases and standard C++ containers, such as std::map and other associative containers. This library abstracts the complexity of database operations, allowing developers to interact with SQLite databases using familiar container interfaces. It ensures data persistence while providing robust mechanisms for synchronization between in-memory data structures and persistent storage.
-
-## Features
-
-- **Container Integration:** Supports synchronization of SQLite databases with various standard C++ containers, including std::map and other associative containers.
-- **Thread-Safety:** Built-in mechanisms to ensure thread-safe interactions with the database.
-- **Transaction Management:** Provides transaction support to ensure data integrity during complex operations.
-- **Customizable Configuration:** Allows configuration of database paths, table names, and other settings.
-- **Exception Handling:** Comprehensive exception handling to manage SQLite errors gracefully.
-- **Easy-to-Use API:** Simplified API for common database operations like insert, remove, find, sync, and clear.
-
-## Classes
-
-### KeyDB
-The `KeyDB` class is designed for storing unique keys and allows working with containers like `std::set`, `std::unordered_set`, `std::list`, and `std::vector`.
-
-### KeyValueDB
-The `KeyValueDB` class stores key-value pairs and allows working with `std::map` and `std::unordered_map`.
-
-### KeyMultiValueDB
-The `KeyMultiValueDB` class implements storage of key-value pairs, where the database follows a many-to-many relationship model. `KeyMultiValueDB` allows working with `std::map`, `std::unordered_map`, `std::multimap`, and `std::unordered_multimap`, and also supports using other containers as values of the map, such as `std::map<int, std::set<std::string>>`.
-
-## Installation
-
-To use the SQLite Containers library, simply include the source files in your project and ensure that you have the SQLite3 library installed.
-
-Ensure that SQLite is compiled with the *SQLITE_THREADSAFE=1* option to provide multithreading support.
-
-## Usage Example
-
-Here’s a basic example demonstrating how to use `KeyMultiValueDB` with various containers:
-
-```cpp
 #include <sqlite_containers/KeyMultiValueDB.hpp>
 #include <iostream>
 
@@ -162,16 +127,3 @@ int main() {
 
     return 0;
 }
-```
-
-## Documentation
-
-The documentation is under development.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-
-Special thanks to the SQLite development team for their work on the SQLite library.

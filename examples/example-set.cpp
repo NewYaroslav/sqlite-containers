@@ -18,19 +18,26 @@ int main() {
         // Create a std::set with keys
         std::set<int> keys = {1, 2, 3, 4, 5};
 
-        // Synchronize std::set with the database
-        key_db.sync_to_db(keys);
+        // Append the contents of the std::set to the database
+        key_db.append(keys);
 
         // Retrieve all keys from the database and print them
-        std::set<int> retrieved_keys = key_db.retrieve_all<std::set>();
-        std::cout << "Keys in database after sync_to_db: ";
-        for (const auto& key : retrieved_keys) {
+        std::set<int> retrieved_keys_set = key_db.retrieve_all<std::set>();
+        std::cout << "Keys in database after append: ";
+        for (const auto& key : retrieved_keys_set) {
             std::cout << key << " ";
         }
         std::cout << std::endl;
 
         // Insert a new key
         key_db.insert(6);
+
+        std::list<int> retrieved_keys_list = key_db.retrieve_all<std::list>();
+        std::cout << "Keys in database after insert: ";
+        for (const auto& key : retrieved_keys_list) {
+            std::cout << key << " ";
+        }
+        std::cout << std::endl;
 
         // Check if the key exists in the database
         if (key_db.find(6)) {
@@ -50,9 +57,9 @@ int main() {
         key_db.remove(3);
 
         // Retrieve all keys from the database after removal and print them
-        retrieved_keys = key_db.retrieve_all<std::set>();
+        std::vector<int> retrieved_keys_vector = key_db.retrieve_all<std::vector>();
         std::cout << "Keys in database after removing key 3: ";
-        for (const auto& key : retrieved_keys) {
+        for (const auto& key : retrieved_keys_vector) {
             std::cout << key << " ";
         }
         std::cout << std::endl;
@@ -62,6 +69,5 @@ int main() {
     } catch (const std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
-
     return 0;
 }

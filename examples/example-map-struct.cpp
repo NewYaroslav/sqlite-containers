@@ -4,7 +4,7 @@
 #include <vector>
 
 struct MyStruct {
-    int a;
+    int64_t a;
     double b;
 
     // Serialization and deserialization of the struct
@@ -36,26 +36,26 @@ int main() {
     // Finding and printing a value
     MyStruct value;
     if (map_db.find(2, value)) {
-        std::cout << "Found value for key 2: " << value.a << ", " << value.b << std::endl;
+        std::cout << "Found value for key 2: " << value << std::endl;
     } else {
         std::cout << "Key 2 not found." << std::endl;
     }
 
-    // Synchronizing the database with std::map
+    // Load the database contents into a std::map
     std::map<int, MyStruct> my_map;
-    map_db.sync_to_map(my_map);
+    map_db.load(my_map);
 
     // Printing all key-value pairs
-    std::cout << "Contents of my_map after sync_to_map:" << std::endl;
+    std::cout << "Contents of my_map after load:" << std::endl;
     for (const auto& pair : my_map) {
-        std::cout << "Key: " << pair.first << ", Value: " << pair.second.a << ", " << pair.second.b << std::endl;
+        std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
     }
 
     // Retrieving all key-value pairs directly from the database
     std::map<int, MyStruct> all_entries = map_db.retrieve_all<std::map>();
     std::cout << "Contents of the database using retrieve_all:" << std::endl;
     for (const auto& pair : all_entries) {
-        std::cout << "Key: " << pair.first << ", Value: " << pair.second.a << ", " << pair.second.b << std::endl;
+        std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
     }
 
     // Removing a key-value pair
@@ -63,7 +63,7 @@ int main() {
     all_entries = map_db.retrieve_all<std::map>();
     std::cout << "Contents of the database after removing key 3:" << std::endl;
     for (const auto& pair : all_entries) {
-        std::cout << "Key: " << pair.first << ", Value: " << pair.second.a << ", " << pair.second.b << std::endl;
+        std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
     }
 
     // Inserting a new key-value pair
@@ -71,17 +71,17 @@ int main() {
     all_entries = map_db.retrieve_all<std::map>();
     std::cout << "Contents of the database after inserting key 4:" << std::endl;
     for (const auto& pair : all_entries) {
-        std::cout << "Key: " << pair.first << ", Value: " << pair.second.a << ", " << pair.second.b << std::endl;
+        std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
     }
 
-    // Synchronizing std::map with the database
+    // Append the contents of the std::map to the database
     my_map[5] = {50, 5.5};
-    map_db.sync_to_db(my_map);
+    map_db.append(my_map);
 
     all_entries = map_db.retrieve_all<std::map>();
-    std::cout << "Contents of the database after sync_to_db:" << std::endl;
+    std::cout << "Contents of the database after append:" << std::endl;
     for (const auto& pair : all_entries) {
-        std::cout << "Key: " << pair.first << ", Value: " << pair.second.a << ", " << pair.second.b << std::endl;
+        std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
     }
 
     // Clearing the database
@@ -92,7 +92,7 @@ int main() {
         std::cout << "Database is empty." << std::endl;
     } else {
         for (const auto& pair : all_entries) {
-            std::cout << "Key: " << pair.first << ", Value: " << pair.second.a << ", " << pair.second.b << std::endl;
+            std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
         }
     }
 

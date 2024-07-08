@@ -23,31 +23,31 @@ namespace sqlite_containers {
 		}
 
 		/// \brief Destructor.
-		~KeyDB() override = default;
+		~KeyDB() override final = default;
 
-		/// \brief Synchronizes the database content to a set.
-		/// \tparam ContainerT Template for the container type.
-		/// \param set Container to be synchronized with database content.
+		/// \brief Loads data from the database into the container.
+		/// \tparam ContainerT Template for the container type (vector, deque, list, set or unordered_set).
+		/// \param container Container to be synchronized with database content.
 		/// \throws sqlite_exception if an SQLite error occurs.
 		template<template <class...> class ContainerT>
-		void sync_to_set(ContainerT<KeyT>& set) {
+		void load(ContainerT<KeyT>& container) {
 			std::lock_guard<std::mutex> locker(m_sqlite_mutex);
-			db_sync_to_set(set);
+			db_load(container);
 		}
 
-		/// \brief Synchronizes the database content to a set with a transaction.
-		/// \tparam ContainerT Template for the container type.
-		/// \param set Container to be synchronized with database content.
+		/// \brief Loads data from the database into the container with a transaction.
+		/// \tparam ContainerT Template for the container type (vector, deque, list, set or unordered_set).
+		/// \param container Container to be synchronized with database content.
 		/// \param mode Transaction mode.
 		/// \throws sqlite_exception if an SQLite error occurs.
 		template<template <class...> class ContainerT>
-		void sync_to_set(
-				ContainerT<KeyT>& set,
+		void load(
+				ContainerT<KeyT>& container,
 				const TransactionMode& mode) {
 			std::lock_guard<std::mutex> locker(m_sqlite_mutex);
 			try {
 				db_begin(mode);
-				db_sync_to_set(set);
+				db_load(container);
 				db_commit();
 			} catch(const sqlite_exception &e) {
 				db_rollback();
@@ -62,53 +62,67 @@ namespace sqlite_containers {
 		}
 
 		/// \brief Retrieves all keys from the database.
-		/// \tparam ContainerT Template for the container type.
+		/// \tparam ContainerT Template for the container type (vector, deque, list, set or unordered_set).
 		/// \return A container with all keys.
 		/// \throws sqlite_exception if an SQLite error occurs.
 		template<template <class...> class ContainerT>
 		ContainerT<KeyT> retrieve_all() {
-			ContainerT<KeyT> set;
+			ContainerT<KeyT> container;
 			std::unique_lock<std::mutex> locker(m_sqlite_mutex);
-			db_sync_to_set(set);
+			db_load(container);
 			locker.unlock();
-			return set;
+			return container;
 		}
 
 		/// \brief Retrieves all keys from the database with a transaction.
-		/// \tparam ContainerT Template for the container type.
+		/// \tparam ContainerT Template for the container type (vector, deque, list, set or unordered_set).
 		/// \param mode Transaction mode.
 		/// \return A container with all keys.
 		/// \throws sqlite_exception if an SQLite error occurs.
 		template<template <class...> class ContainerT>
 		ContainerT<KeyT> retrieve_all(const TransactionMode& mode) {
-			ContainerT<KeyT> set;
+			ContainerT<KeyT> container;
 			std::unique_lock<std::mutex> locker(m_sqlite_mutex);
-			db_sync_to_set(set);
-			locker.unlock();
-			return set;
+			try {
+				db_begin(mode);
+				db_load(container);
+				db_commit();
+				locker.unlock();
+			} catch(const sqlite_exception &e) {
+				db_rollback();
+				throw e;
+			} catch(const std::exception &e) {
+				db_rollback();
+				throw sqlite_exception(e.what());
+			} catch(...) {
+				db_rollback();
+				throw sqlite_exception("Unknown error occurred.");
+			}
+
+			return container;
 		}
 
-		/// \brief Synchronizes the set content to the database.
-		/// \tparam ContainerT Template for the container type.
-		/// \param set Container with content to be synchronized to the database.
+		/// \brief Appends the content of the container to the database.
+		/// \tparam ContainerT Template for the container type (vector, deque, list, set or unordered_set).
+		/// \param container Container with content to be synchronized to the database.
 		/// \throws sqlite_exception if an SQLite error occurs.
 		template<template <class...> class ContainerT>
-		void sync_to_db(const ContainerT<KeyT>& set) {
+		void append(const ContainerT<KeyT>& container) {
 			std::lock_guard<std::mutex> locker(m_sqlite_mutex);
-			db_sync_to_db(set);
+			db_append(container);
 		}
 
-		/// \brief Synchronizes the set content to the database with a transaction.
-		/// \tparam ContainerT Template for the container type.
-		/// \param set Container with content to be synchronized to the database.
+		/// \brief Appends the content of the container to the database with a transaction.
+		/// \tparam ContainerT Template for the container type (vector, deque, list, set or unordered_set).
+		/// \param container Container with content to be synchronized to the database.
 		/// \param mode Transaction mode.
 		/// \throws sqlite_exception if an SQLite error occurs.
 		template<template <class...> class ContainerT>
-		void sync_to_db(const ContainerT<KeyT>& set, const TransactionMode& mode) {
+		void append(const ContainerT<KeyT>& container, const TransactionMode& mode) {
 			std::lock_guard<std::mutex> locker(m_sqlite_mutex);
 			try {
 				db_begin(mode);
-				sync_to_db(set);
+				db_append(container);
 				db_commit();
 			} catch(const sqlite_exception &e) {
 				db_rollback();
@@ -155,8 +169,8 @@ namespace sqlite_containers {
 		}
 
 	private:
-		SqliteStmt m_stmt_sync_to_set;  ///< Statement for synchronizing to set.
-		SqliteStmt m_stmt_sync_to_db;   ///< Statement for synchronizing to database.
+		SqliteStmt m_stmt_load;         ///< Statement for loading data from the database.
+		SqliteStmt m_stmt_replace;      ///< Statement for replacing key-value pairs in the database.
 		SqliteStmt m_stmt_find;         ///< Statement for finding a key.
 		SqliteStmt m_stmt_remove;	    ///< Statement for removing a key.
 		SqliteStmt m_stmt_clear;	    ///< Statement for clearing the table.
@@ -165,40 +179,45 @@ namespace sqlite_containers {
 		/// \param config Configuration settings.
 		void db_create_table(const Config &config) override final {
 			const std::string table_name = config.table_name.empty() ? "key_store" : config.table_name;
-			const std::string create_key_table_sql =
+
+			// Create table if they do not exist
+			const std::string create_table_sql =
 				"CREATE TABLE IF NOT EXISTS " + table_name + " ("
 				"key " + get_sqlite_type<KeyT>() + " PRIMARY KEY NOT NULL);";
-			execute(m_sqlite_db, create_key_table_sql);
-			m_stmt_sync_to_set.init(m_sqlite_db, "SELECT key FROM " + table_name + ";");
-			m_stmt_sync_to_db.init(m_sqlite_db, "REPLACE INTO " + table_name + " (key) VALUES (?);");
+			execute(m_sqlite_db, create_table_sql);
+
+			// Initialize prepared statements
+			m_stmt_load.init(m_sqlite_db, "SELECT key FROM " + table_name + ";");
+			m_stmt_replace.init(m_sqlite_db, "REPLACE INTO " + table_name + " (key) VALUES (?);");
 			m_stmt_find.init(m_sqlite_db, "SELECT EXISTS(SELECT 1 FROM " + table_name + " WHERE key = ?);");
-			m_stmt_remove.init(m_sqlite_db, "DELETE FROM " + table_name + " WHERE key == ?;");
+			m_stmt_remove.init(m_sqlite_db, "DELETE FROM " + table_name + " WHERE key = ?;");
 			m_stmt_clear.init(m_sqlite_db, "DELETE FROM " + table_name);
 		}
 
-		/// \brief Synchronizes the database content to a set.
-		/// \tparam ContainerT Template for the container type.
+		/// \brief Loads data from the database into the container.
+		/// \tparam ContainerT Template for the container type (vector, deque, list, set or unordered_set).
 		/// \param set Container to be synchronized with database content.
 		/// \throws sqlite_exception if an SQLite error occurs.
 		template<template <class...> class ContainerT>
-		void db_sync_to_set(ContainerT<KeyT>& set) {
+		void db_load(ContainerT<KeyT>& container) {
 			int err;
 			try {
 				for (;;) {
-					while ((err = m_stmt_sync_to_set.step()) == SQLITE_ROW) {
-						KeyT key = m_stmt_sync_to_set.extract_column<KeyT>(0);
-						set.insert(key);
+					while ((err = m_stmt_load.step()) == SQLITE_ROW) {
+						KeyT key = m_stmt_load.extract_column<KeyT>(0);
+						add_value(container, key);
 					}
 					if (err == SQLITE_DONE) {
-						m_stmt_sync_to_set.reset();
+						m_stmt_load.reset();
 						return;
 					}
 					if (err == SQLITE_BUSY) {
-						// Restart reading
-						m_stmt_sync_to_set.reset();
+						// Handle busy database, retry reading
+						m_stmt_load.reset();
 						sqlite3_sleep(SQLITE_CONTAINERS_BUSY_RETRY_DELAY_MS);
 						continue;
 					}
+					// Handle SQLite errors
 					std::string err_msg = "SQLite error: ";
 					err_msg += std::to_string(err);
 					err_msg += ", ";
@@ -206,13 +225,13 @@ namespace sqlite_containers {
 					throw sqlite_exception(err_msg, err);
 				}
 			} catch(const sqlite_exception &e) {
-				m_stmt_sync_to_set.reset();
+				m_stmt_load.reset();
 				throw e;
 			} catch(const std::exception &e) {
-				m_stmt_sync_to_set.reset();
+				m_stmt_load.reset();
 				throw sqlite_exception(e.what());
 			} catch(...) {
-				m_stmt_sync_to_set.reset();
+				m_stmt_load.reset();
 				throw sqlite_exception("Unknown error occurred.");
 			}
 		}
@@ -232,14 +251,17 @@ namespace sqlite_containers {
 					}
 					if (err == SQLITE_DONE) {
 						m_stmt_find.reset();
+						m_stmt_find.clear_bindings();
 						return is_found;
 					}
 					if (err == SQLITE_BUSY) {
-						// Restart reading
+						// Handle busy database, retry reading
 						m_stmt_find.reset();
+						m_stmt_find.clear_bindings();
 						sqlite3_sleep(SQLITE_CONTAINERS_BUSY_RETRY_DELAY_MS);
 						continue;
 					}
+					// Handle SQLite errors
 					std::string err_msg = "SQLite error: ";
 					err_msg += std::to_string(err);
 					err_msg += ", ";
@@ -248,37 +270,43 @@ namespace sqlite_containers {
 				}
 			} catch(const sqlite_exception &e) {
 				m_stmt_find.reset();
+				m_stmt_find.clear_bindings();
 				throw e;
 			} catch(const std::exception &e) {
 				m_stmt_find.reset();
+				m_stmt_find.clear_bindings();
 				throw sqlite_exception(e.what());
 			} catch(...) {
 				m_stmt_find.reset();
+				m_stmt_find.clear_bindings();
 				throw sqlite_exception("Unknown error occurred.");
 			}
 		}
 
-		/// \brief Synchronizes the set content to the database.
-		/// \tparam ContainerT Template for the container type.
-		/// \param set Container with content to be synchronized to the database.
+		/// \brief Appends the content of the container to the database.
+		/// \tparam ContainerT Template for the container type (vector, deque, list, set or unordered_set).
+		/// \param container Container with content to be synchronized to the database.
 		/// \throws sqlite_exception if an SQLite error occurs.
 		template<template <class...> class ContainerT>
-		void db_sync_to_db(const ContainerT<KeyT>& set) {
+		void db_append(const ContainerT<KeyT>& container) {
 			try {
-				for (const auto& item : set) {
-					m_stmt_sync_to_db.bind_value<KeyT>(1, item);
-					m_stmt_sync_to_db.execute();
-					m_stmt_sync_to_db.reset();
-					m_stmt_sync_to_db.clear_bindings();
+				for (const auto& item : container) {
+					m_stmt_replace.bind_value<KeyT>(1, item);
+					m_stmt_replace.execute();
+					m_stmt_replace.reset();
+					m_stmt_replace.clear_bindings();
 				}
 			} catch(const sqlite_exception &e) {
-				m_stmt_sync_to_db.reset();
+				m_stmt_replace.reset();
+				m_stmt_replace.clear_bindings();
 				throw e;
 			} catch(const std::exception &e) {
-				m_stmt_sync_to_db.reset();
+				m_stmt_replace.reset();
+				m_stmt_replace.clear_bindings();
 				throw sqlite_exception(e.what());
 			} catch(...) {
-				m_stmt_sync_to_db.reset();
+				m_stmt_replace.reset();
+				m_stmt_replace.clear_bindings();
 				throw sqlite_exception("Unknown error occurred.");
 			}
 		}
@@ -288,18 +316,21 @@ namespace sqlite_containers {
 		/// \throws sqlite_exception if an SQLite error occurs.
 		void db_insert(const KeyT &key) {
 			try {
-				m_stmt_sync_to_db.bind_value<KeyT>(1, key);
-				m_stmt_sync_to_db.execute();
-				m_stmt_sync_to_db.reset();
-				m_stmt_sync_to_db.clear_bindings();
+				m_stmt_replace.bind_value<KeyT>(1, key);
+				m_stmt_replace.execute();
+				m_stmt_replace.reset();
+				m_stmt_replace.clear_bindings();
 			} catch(const sqlite_exception &e) {
-				m_stmt_sync_to_db.reset();
+				m_stmt_replace.reset();
+				m_stmt_replace.clear_bindings();
 				throw e;
 			} catch(const std::exception &e) {
-				m_stmt_sync_to_db.reset();
+				m_stmt_replace.reset();
+				m_stmt_replace.clear_bindings();
 				throw sqlite_exception(e.what());
 			} catch(...) {
-				m_stmt_sync_to_db.reset();
+				m_stmt_replace.reset();
+				m_stmt_replace.clear_bindings();
 				throw sqlite_exception("Unknown error occurred.");
 			}
 		}
