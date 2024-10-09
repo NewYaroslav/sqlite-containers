@@ -7,6 +7,7 @@
 
 namespace sqlite_containers {
 
+    /// \class KeyDB
 	/// \brief Template class for managing keys in a SQLite database.
 	/// \tparam KeyT Type of the keys.
 	template<class KeyT>

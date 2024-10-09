@@ -18,6 +18,7 @@
 namespace sqlite_containers {
 	namespace fs = std::filesystem;
 
+	/// \class BaseDB
 	/// \brief Base class for SQLite database management.
 	class BaseDB {
 	public:
@@ -26,12 +27,13 @@ namespace sqlite_containers {
 		BaseDB() = default;
 
 		/// \brief Destructor.
+		/// Disconnects from the database if connected.
 		virtual ~BaseDB() {
 			disconnect();
 		}
 
 		/// \brief Sets the configuration for the database.
-		/// \param config Configuration settings for the database.
+        /// \param config Configuration settings for the database.
 		void set_config(const Config& config) {
 			std::lock_guard<std::mutex> locker(m_config_mutex);
 			m_config_new = config;
@@ -39,14 +41,15 @@ namespace sqlite_containers {
 		}
 
 		/// \brief Gets the current configuration of the database.
-		/// \return Current configuration settings.
-		Config get_config() {
+        /// \return The current configuration settings.
+		Config get_config() const {
 			std::lock_guard<std::mutex> locker(m_config_mutex);
 			return m_config;
 		}
 
-		/// \brief Connects to the database.
+		/// \brief Connects to the database using the current configuration.
 		/// Initializes a connection to the database by creating necessary directories, opening the database, creating tables, and setting up database parameters.
+        /// \throws sqlite_exception if connection fails.
 		void connect() {
 			std::lock_guard<std::mutex> locker(m_sqlite_mutex);
 			if (!m_sqlite_db && !m_config_update) {
@@ -54,6 +57,7 @@ namespace sqlite_containers {
 			}
 			if (m_sqlite_db) {
 				if (!m_config_update) return;
+				on_db_close();
 				sqlite3_close_v2(m_sqlite_db);
 				m_sqlite_db = nullptr;
 			}
@@ -82,18 +86,22 @@ namespace sqlite_containers {
 
 		/// \brief Connects to the database with the given configuration.
 		/// \param config Configuration settings for the database.
+		/// \throws sqlite_exception if connection fails.
 		void connect(const Config& config) {
 			set_config(config);
 			connect();
 		}
 
 		/// \brief Disconnects from the database.
+		/// \throws sqlite_exception if disconnect fails.
 		void disconnect() {
 			std::lock_guard<std::mutex> locker(m_sqlite_mutex);
 			if (!m_sqlite_db) return;
+
 			on_db_close();
 			sqlite3_close_v2(m_sqlite_db);
 			m_sqlite_db = nullptr;
+
 			try {
 				if (m_future.valid()) {
 					while (m_future.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout) {
@@ -106,54 +114,54 @@ namespace sqlite_containers {
 			} catch(const std::exception &e) {
 				throw sqlite_exception(e.what());
 			} catch(...) {
-				throw sqlite_exception("An unspecified error occurred while waiting for async operations.");
+				throw sqlite_exception("Error occurred during async operation.");
 			}
 		}
 
 		/// \brief Begins a database transaction.
-		/// \param mode Transaction mode (defaults to DEFERRED).
-		/// \throws sqlite_exception if the execution fails.
+		/// \param mode Transaction mode (default: DEFERRED).
+		/// \throws sqlite_exception if the transaction fails.
 		void begin(const TransactionMode &mode = TransactionMode::DEFERRED) {
 			std::lock_guard<std::mutex> locker(m_sqlite_mutex);
 			db_begin(mode);
 		}
 
 		/// \brief Commits the current transaction.
-		/// \throws sqlite_exception if the execution fails.
+		/// \throws sqlite_exception if the commit fails.
 		void commit() {
 			std::lock_guard<std::mutex> locker(m_sqlite_mutex);
 			db_commit();
 		}
 
 		/// \brief Rolls back the current transaction.
-		/// \throws sqlite_exception if the execution fails.
+		/// \throws sqlite_exception if the rollback fails.
 		void rollback() {
 			std::lock_guard<std::mutex> locker(m_sqlite_mutex);
 			db_rollback();
 		}
 
-		/// \brief Processes asynchronous database requests.
+		/// \brief Processes asynchronous database requests (can be overridden).
 		virtual void process() {};
 
 	protected:
-		sqlite3*	m_sqlite_db = nullptr;
-		std::mutex	m_sqlite_mutex;
+		sqlite3*	        m_sqlite_db = nullptr;
+		mutable std::mutex  m_sqlite_mutex;
 
-		/// \brief Begins a database transaction.
+		/// \brief Begins a transaction with the given mode.
 		/// \param mode Transaction mode (defaults to DEFERRED).
-		/// \throws sqlite_exception if the execution fails.
+		/// \throws sqlite_exception if the transaction fails.
 		void db_begin(const TransactionMode &mode = TransactionMode::DEFERRED) {
 			m_stmt_begin[static_cast<size_t>(mode)].execute(m_sqlite_db);
 		}
 
 		/// \brief Commits the current transaction.
-		/// \throws sqlite_exception if the execution fails.
+		/// \throws sqlite_exception if the commit fails.
 		void db_commit() {
 			m_stmt_commit.execute(m_sqlite_db);
 		}
 
 		/// \brief Rolls back the current transaction.
-		/// \throws sqlite_exception if the execution fails.
+		/// \throws sqlite_exception if the rollback fails.
 		void db_rollback() {
 			m_stmt_rollback.execute(m_sqlite_db);
 		}
@@ -161,21 +169,21 @@ namespace sqlite_containers {
 	private:
 
 		std::array<SqliteStmt, 3> m_stmt_begin;
-		SqliteStmt	m_stmt_commit;
-		SqliteStmt	m_stmt_rollback;
+		SqliteStmt	        m_stmt_commit;
+		SqliteStmt	        m_stmt_rollback;
 
-		Config		m_config_new;
-		Config		m_config;
-		std::mutex	m_config_mutex;
-		std::atomic<bool> m_config_update = ATOMIC_VAR_INIT(false);
+		Config		        m_config_new;
+		Config		        m_config;
+		mutable std::mutex	m_config_mutex;
+		std::atomic<bool>   m_config_update = ATOMIC_VAR_INIT(false);
 
 		std::shared_future<void> m_future;
 
-		/// \brief Create directories for the database.
-		/// \param config Configuration settings.
-		/// Creates necessary directories for the database file if they do not exist.
+		/// \brief Creates necessary directories for the database.
+        /// This method checks if the parent directory of the database file exists, and if not, attempts to create it.
+        /// \param config Configuration settings, including the path to the database file.
+		/// \throws sqlite_exception If the directories cannot be created.
 		void db_create_directories(const Config &config) {
-			// Create all necessary subdirectories based on the file path.
 			fs::path file_path(config.db_path);
 			fs::path parent_dir = file_path.parent_path();
 			if (parent_dir.empty()) return;
@@ -186,9 +194,9 @@ namespace sqlite_containers {
 			}
 		}
 
-		/// \brief Open the database.
-		/// \param config Configuration settings.
-		/// Opens the database with the flags specified in the configuration.
+		/// \brief Opens the database with the specified configuration.
+        /// \param config Configuration settings.
+        /// \throws sqlite_exception if the database fails to open.
 		void db_open(const Config &config) {
 			int flags = 0;
 			flags |= config.read_only ? SQLITE_OPEN_READONLY : (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE);
@@ -207,9 +215,9 @@ namespace sqlite_containers {
 			}
 		}
 
-		/// \brief Initialize the database.
-		/// \param config Configuration settings.
+		/// \brief Initializes the database with the given configuration.
 		/// Sets database parameters such as busy timeout, page size, cache size, journal mode, and other settings.
+        /// \param config Configuration settings.
 		void db_init(const Config &config) {
 			execute(m_sqlite_db, "PRAGMA busy_timeout = " + std::to_string(config.busy_timeout) + ";");
 			execute(m_sqlite_db, "PRAGMA page_size = " + std::to_string(config.page_size) + ";");
@@ -240,17 +248,17 @@ namespace sqlite_containers {
 
 	protected:
 
-		/// \brief Create a table in the database.
+		/// \brief Creates tables in the database.
+        /// Must be implemented in derived classes.
 		/// \param config Configuration settings.
-		/// A virtual method that must be implemented in derived classes to create tables in the database.
 		virtual void db_create_table(const Config &config) = 0;
 
 		/// \brief Called after the database is opened.
-		/// A virtual method that can be overridden in derived classes to perform actions after the database is opened.
+		/// Can be overridden in derived classes.
 		virtual void on_db_open() {}
 
 		/// \brief Called before the database is closed.
-		/// A virtual method that can be overridden in derived classes to perform actions before the database is closed.
+		/// Can be overridden in derived classes.
 		virtual void on_db_close() {}
 
 	}; // BaseDB

@@ -8,6 +8,7 @@
 
 namespace sqlite_containers {
 
+    /// \class KeyMultiValueDB
     /// \brief Template class for managing key-value pairs in a SQLite database.
     ///
     /// This class allows interaction with a SQLite database where each key can map to multiple values,
@@ -732,10 +733,10 @@ namespace sqlite_containers {
                 for (const auto& pair : container) {
                     // Get the key_id
                     const int64_t key_id = db_get_key_id(pair.first);
-                    if (key_id == -1) throw sqlite_exception("?");
+                    if (key_id == -1) throw sqlite_exception("Failed to retrieve key ID for the provided key during reconciliation.");
                     // Get the value_id
                     const int64_t value_id = db_get_value_id(pair.second);
-                    if (value_id == -1) throw sqlite_exception("?");
+                    if (value_id == -1) throw sqlite_exception("Failed to retrieve value ID for the provided value during reconciliation.");
                     // Get the value_count
                     const size_t value_count = db_get_value_count(key_id, value_id);
                     if (!value_count) {
@@ -834,6 +835,7 @@ namespace sqlite_containers {
                         }
                     }
 				}
+
                 // Begin transaction
                 db_begin(mode);
                 // Clear temporary tables
@@ -850,14 +852,15 @@ namespace sqlite_containers {
                         db_insert_temp_value(pair.first);
                     }
                 }
+
                 for (const auto& pair : container) {
                     // Get the key_id
                     const int64_t key_id = db_get_key_id(pair.first);
-                    if (key_id == -1) throw sqlite_exception("?");
+                    if (key_id == -1) continue;
                     for (const ValueT& value : pair.second) {
                         // Get the value_id
                         const int64_t value_id = db_get_value_id(value);
-                        if (value_id == -1) throw sqlite_exception("?");
+                        if (value_id == -1) throw sqlite_exception("Failed to retrieve value ID for the provided value during reconciliation.");
                         // Get the value_count
                         const size_t value_count = db_get_value_count(key_id, value_id);
                         if (value_count) continue;

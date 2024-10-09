@@ -235,6 +235,24 @@ namespace sqlite_containers {
         }
     }
 
+    /// \brief Adds a value to a container (std::set).
+    /// \tparam ContainerT The type of container (std::set).
+    /// \tparam T The type of value to add.
+    /// \param container The container to which the value will be added.
+    /// \param value The value to add.
+    /// \param value_count Number of times to add the value (default is 0, meaning add once).
+    template<template <class...> class ContainerT, class T>
+    inline void add_value(ContainerT<T> &container, const T &value, const size_t& value_count,
+            typename std::enable_if<
+                std::is_same<ContainerT<T>, std::set<T>>::value ||
+                std::is_same<ContainerT<T>, std::multiset<T>>::value ||
+                std::is_same<ContainerT<T>, std::unordered_set<T>>::value ||
+                std::is_same<ContainerT<T>, std::unordered_multiset<T>>::value>::type* = 0) {
+        for (size_t i = 0; i < value_count; ++i) {
+            container.emplace(value);
+        }
+    }
+
     /// \brief Adds a key-value pair to a container (multimap or unordered_multimap).
     /// \tparam ContainerT The type of container (multimap or unordered_multimap).
     /// \tparam KeyT The type of key.
