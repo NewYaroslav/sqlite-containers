@@ -1,4 +1,5 @@
 # SQLite Containers
+![LogIt++ Logo](docs/logo-640x320.png)
 
 SQLite Containers is a lightweight header-only C++ library designed to provide seamless integration between SQLite databases and standard C++ containers, such as std::map and other associative containers. This library abstracts the complexity of database operations, allowing developers to interact with SQLite databases using familiar container interfaces. It ensures data persistence while providing robust mechanisms for synchronization between in-memory data structures and persistent storage.
 
