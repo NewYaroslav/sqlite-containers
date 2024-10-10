@@ -24,9 +24,18 @@
 */
 var NAVTREE =
 [
-  [ "LogIt++", "index.html", [
-    [ "SQLite Containers", "index.html", null ],
+  [ "SQLite Containers", "index.html", [
     [ "Namespaces", "namespaces.html", [
+      [ "Features", "index.html#autotoc_md0", null ],
+      [ "Requirements", "index.html#autotoc_md1", null ],
+      [ "Installation", "index.html#autotoc_md2", null ],
+      [ "Key Classes", "index.html#autotoc_md3", [
+        [ "Example of Using Multiple Classes with a Single Database", "index.html#autotoc_md4", null ],
+        [ "Example of Using Transactions", "index.html#autotoc_md5", null ],
+        [ "Transaction Support for Data Manipulation", "index.html#autotoc_md6", null ]
+      ] ],
+      [ "Configuration Options", "index.html#autotoc_md7", null ],
+      [ "Struct Support", "index.html#autotoc_md8", null ],
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
       [ "Namespace Members", "namespacemembers.html", [
         [ "All", "namespacemembers.html", null ],
