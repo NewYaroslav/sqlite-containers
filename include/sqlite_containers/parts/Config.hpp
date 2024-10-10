@@ -22,7 +22,7 @@ namespace sqlite_containers {
         int cache_size = 2000;                  ///< SQLite cache size (in pages).
         int analysis_limit = 1000;              ///< Maximum number of rows to analyze.
         int wal_autocheckpoint = 1000;          ///< WAL auto-checkpoint threshold.
-        JournalMode     journal_mode        = JournalMode::DELETE;          ///< SQLite journal mode.
+        JournalMode     journal_mode        = JournalMode::DELETE_MODE;     ///< SQLite journal mode.
         SynchronousMode synchronous         = SynchronousMode::FULL;        ///< SQLite synchronous mode.
         LockingMode     locking_mode        = LockingMode::NORMAL;          ///< SQLite locking mode.
         AutoVacuumMode  auto_vacuum_mode    = AutoVacuumMode::NONE;         ///< SQLite auto-vacuum mode.

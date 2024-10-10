@@ -140,6 +140,29 @@ namespace sqlite_containers {
 			db_rollback();
 		}
 
+		/// \brief Executes an operation inside a transaction.
+		/// \param operation The operation to execute.
+		/// \param mode The transaction mode.
+		/// \throws sqlite_exception if an error occurs during execution.
+		template<typename Func>
+		void execute_in_transaction(Func operation, const TransactionMode& mode) {
+			std::lock_guard<std::mutex> locker(m_sqlite_mutex);
+			try {
+				db_begin(mode);
+				operation();
+				db_commit();
+			} catch(const sqlite_exception &e) {
+				db_rollback();
+				throw e;
+			} catch(const std::exception &e) {
+				db_rollback();
+				throw sqlite_exception(e.what());
+			} catch(...) {
+				db_rollback();
+				throw sqlite_exception("Unknown error occurred.");
+			}
+		}
+
 		/// \brief Processes asynchronous database requests (can be overridden).
 		virtual void process() {};
 

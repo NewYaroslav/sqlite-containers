@@ -11,7 +11,7 @@ namespace sqlite_containers {
 	/// \enum JournalMode
 	/// \brief SQLite journal modes enumeration.
 	enum class JournalMode {
-		DELETE,		///< Delete journal mode.
+		DELETE_MODE,///< Delete journal mode.
 		TRUNCATE,	///< Truncate journal mode.
 		PERSIST,	///< Persist journal mode.
 		MEMORY,		///< Memory journal mode.

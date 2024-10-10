@@ -30,10 +30,10 @@ namespace sqlite_containers {
         // --- Operators ---
 
 		/// \brief Assigns a container (e.g., std::map or std::unordered_map) to the database.
-        /// This operator allows you to synchronize a container with the database by using the '=' operator.
-        /// The transaction mode is taken from the database configuration.
         /// \param container The container with key-value pairs.
         /// \return Reference to this KeyValueDB.
+        /// \throws sqlite_exception if an SQLite error occurs.
+        /// \note The transaction mode is taken from the database configuration.
         template<template <class...> class ContainerT>
         KeyValueDB& operator=(const ContainerT<KeyT, ValueT>& container) {
             // Get the default transaction mode from the configuration
@@ -46,10 +46,10 @@ namespace sqlite_containers {
         }
 
         /// \brief Loads all key-value pairs from the database into a container (e.g., std::map or std::unordered_map).
-        /// This operator allows you to load all key-value pairs from the database into a container using function call syntax.
-        /// The transaction mode is taken from the database configuration.
         /// \tparam ContainerT The type of the container (e.g., std::map or std::unordered_map).
         /// \return A container populated with all key-value pairs from the database.
+        /// \throws sqlite_exception if an SQLite error occurs.
+        /// \note The transaction mode is taken from the database configuration.
         template<template <class...> class ContainerT = std::map>
         ContainerT<KeyT, ValueT> operator()() {
             ContainerT<KeyT, ValueT> container;
@@ -269,29 +269,6 @@ namespace sqlite_containers {
 			m_stmt_clear_temp.init(m_sqlite_db, "DELETE FROM " + temp_table_name + ";");
 		}
 
-		/// \brief Executes an operation inside a transaction.
-		/// \param operation The operation to execute.
-		/// \param mode The transaction mode.
-		/// \throws sqlite_exception if an error occurs during execution.
-		template<typename Func>
-		void execute_in_transaction(Func operation, const TransactionMode& mode) {
-			std::lock_guard<std::mutex> locker(m_sqlite_mutex);
-			try {
-				db_begin(mode);
-				operation();
-				db_commit();
-			} catch(const sqlite_exception &e) {
-				db_rollback();
-				throw e;
-			} catch(const std::exception &e) {
-				db_rollback();
-				throw sqlite_exception(e.what());
-			} catch(...) {
-				db_rollback();
-				throw sqlite_exception("Unknown error occurred.");
-			}
-		}
-
 		/// \brief Loads data from the database into the container.
 		/// \tparam ContainerT Template for the container type.
 		/// \param container Container to be synchronized with database content.
@@ -421,7 +398,7 @@ namespace sqlite_containers {
                 throw sqlite_exception(e.what());
             } catch(...) {
                 m_stmt_count.reset();
-                throw sqlite_exception("Unknown error occurred while counting rows in the main table.");
+                throw sqlite_exception("Unknown error occurred.");
             }
             return count;
         }
