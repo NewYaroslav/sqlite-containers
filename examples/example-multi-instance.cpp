@@ -1,43 +1,3 @@
-# SQLite Containers
-
-SQLite Containers is a lightweight header-only C++ library designed to provide seamless integration between SQLite databases and standard C++ containers, such as std::map and other associative containers. This library abstracts the complexity of database operations, allowing developers to interact with SQLite databases using familiar container interfaces. It ensures data persistence while providing robust mechanisms for synchronization between in-memory data structures and persistent storage.
-
-## Features
-
-- **Container Integration:** Supports synchronization of SQLite databases with various standard C++ containers, including `std::map` and other associative containers.
-- **Easy-to-Use API:** Simplified API for common operations like `insert`, `remove`, `find`, `sync`, and `clear`.
-- **Multiple Classes, Single Database**: Supports multiple class instances working with different data types, all connecting to the same SQLite database file.
-- **Transaction Management:** Provides transaction support to ensure data integrity during complex operations.
-- **Customizable Configuration:** Allows configuration of database paths, table names, and other settings.
-- **Thread-Safety:** Built-in mechanisms to ensure thread-safe interactions with the database.
-- **Exception Handling:** Exception handling to manage SQLite errors gracefully.
-- **C++17 Compatible**: Fully supports `C++17` and its advanced features, ensuring modern C++ development practices.
-
-## Classes
-
-### KeyDB
-
-The `KeyDB` class is designed for storing unique keys and allows working with containers like `std::set`, `std::unordered_set`, `std::list`, and `std::vector`.
-
-### KeyValueDB
-
-The `KeyValueDB` class stores key-value pairs and allows working with `std::map` and `std::unordered_map`.
-
-### KeyMultiValueDB
-
-The `KeyMultiValueDB` class is designed for managing key-value pairs in a SQLite database, where each key can map to multiple values. The database follows a many-to-many relationship model. This class allows flexibility in how keys and values are stored and supports operations with containers such as `std::multimap`, `std::unordered_multimap`, or containers where keys map to collections of values, like `std::map<KeyT, std::vector<ValueT>>`.
-
-## Installation
-
-To use the SQLite Containers library, simply include the source files in your project and ensure that you have the SQLite3 library installed. The library is compatible with `C++17`.
-
-Make sure SQLite is compiled with the `SQLITE_THREADSAFE=1` option to provide multithreading support.
-
-## Usage Example
-
-Here’s a basic example demonstrating how to use multiple instances of `KeyDB`, `KeyValueDB`, and `KeyMultiValueDB` connected to the same SQLite database file but operating on different tables and data types:
-
-```cpp
 #include <sqlite_containers/KeyDB.hpp>
 #include <sqlite_containers/KeyValueDB.hpp>
 #include <sqlite_containers/KeyMultiValueDB.hpp>
@@ -137,20 +97,4 @@ int main() {
     }
     return 0;
 }
-```
 
-This example shows how you can have multiple database tables, each working with different types of data, all in the same SQLite file.
-
-Several example use cases are provided in the [examples](https://github.com/NewYaroslav/sqlite-containers/tree/main/examples) folder of the repository.
-
-## Documentation
-
-The documentation is under development.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
-## Acknowledgements
-
-Special thanks to the SQLite development team for their work on the SQLite library.

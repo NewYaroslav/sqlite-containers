@@ -44,6 +44,12 @@ int main() {
     map_db.insert(2, {20, 2.2});
     map_db.insert(3, {30, 3.3});
 
+    // Check the number of keys in the database
+    std::cout << "Number of keys in the database: " << map_db.count() << std::endl;
+
+    // Check if the database is empty
+    std::cout << "Is the database empty? " << (map_db.empty() ? "Yes" : "No") << std::endl;
+
     // Find and output the value for key 2
     MyStruct value;
     if (map_db.find(2, value)) {
@@ -66,6 +72,9 @@ int main() {
     std::map<int, MyStruct> all_entries = map_db.retrieve_all<std::map>();
     print_map(all_entries, "Contents of database using retrieve_all:");
 
+    // Check the number of keys in the database
+    std::cout << "Number of keys in the database: " << map_db.count() << std::endl;
+
     // Remove key-value pair with key 3 and output the result
     map_db.remove(3);
     all_entries = map_db.retrieve_all<std::map>();
@@ -79,7 +88,6 @@ int main() {
     // Add the contents of a std::map to the database using the append method
     my_map[5] = {50, 5.5};
     map_db.append(my_map);  // Append data from my_map to the database
-
     all_entries = map_db.retrieve_all<std::map>();
     print_map(all_entries, "Contents of database after append:");
 
@@ -98,8 +106,8 @@ int main() {
     print_map(all_entries, "Contents of database after using operator= to reconcile:");
 
     // Output the number of elements and whether the database is empty
-    std::cout << "count: " << map_db.count() << std::endl;
-    std::cout << "empty: " << map_db.empty() << std::endl;
+    std::cout << "Number of keys in the database: " << map_db.count() << std::endl;
+    std::cout << "Is the database empty? " << (map_db.empty() ? "Yes" : "No") << std::endl;
 
     // Clear the database and output the result
     map_db.clear();
@@ -111,8 +119,7 @@ int main() {
     }
 
     // Final check for emptiness
-    std::cout << "empty: " << map_db.empty() << std::endl;
+    std::cout << "Is the database empty? " << (map_db.empty() ? "Yes" : "No") << std::endl;
 
     return 0;
 }
-

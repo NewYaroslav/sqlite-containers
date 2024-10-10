@@ -1,0 +1,108 @@
+/// \mainpage SQLite Containers
+///
+/// SQLite Containers is a lightweight header-only C++ library designed to integrate SQLite databases with standard C++ containers,
+/// such as `std::map` and other associative containers. This library abstracts the complexity of database operations,
+/// allowing developers to interact with SQLite databases using familiar container interfaces.
+/// It ensures data persistence while providing robust mechanisms for synchronization between in-memory data structures
+/// and persistent storage.
+///
+/// ## Features
+///
+/// - **Container Integration:** Synchronizes SQLite databases with standard C++ containers, including `std::map`, `std::unordered_map`, 
+/// `std::set`, `std::vector`, and more.
+/// - **Easy-to-Use API:** Simplified API for common operations like `insert`, `remove`, `find`, `sync`, and `clear`.
+/// - **Multiple Classes, Single Database:** Supports the use of multiple class instances (e.g., `KeyDB`, `KeyValueDB`, `KeyMultiValueDB`) 
+/// operating on different tables in the same SQLite database file.
+/// - **Exception Handling:** Exception handling to manage SQLite errors gracefully.
+/// - **Thread-Safety:** Thread-safe interactions with the database to ensure consistent state in multi-threaded applications.
+/// - **Transaction Management:** Supports transactions to guarantee data integrity during complex operations.
+/// - **Temporary Tables:** Uses temporary tables for efficient data synchronization.
+/// - **Customizable Configuration:** Allows for detailed configuration of database paths, table names, and other settings.
+/// - **C++17 Compatible:** Designed to work with C++17, leveraging modern language features.
+///
+/// ## Requirements
+///
+/// The library is compatible with `C++17` and requires the SQLite3 library. Ensure that SQLite is compiled with `SQLITE_THREADSAFE=1` 
+/// for multi-threading support.
+///
+/// ## Installation
+///
+/// To use the SQLite Containers library, include the source files in your project and link against the SQLite3 library.
+///
+/// *SQLite Containers will create the database file and all intermediate directories if they do not already exist.*
+///
+/// ## Key Classes
+///
+/// - `KeyDB`: Manages unique keys in containers like `std::set`, `std::unordered_set`, `std::list`, and `std::vector`.
+/// - `KeyValueDB`: Manages key-value pairs in containers like `std::map`, `std::unordered_map`.
+/// - `KeyMultiValueDB`: Manages key-value pairs where each key maps to multiple values. The database follows a many-to-many relationship model. This class allows flexibility in how keys and values are stored and supports operations with containers such as `std::multimap`, `std::unordered_multimap`, or containers where keys map to collections of values, like `std::map<KeyT, std::vector<ValueT>>`.
+///
+/// ### Example of Using Multiple Classes with a Single Database
+///
+/// Each class can operate on a different table within the same SQLite database file by setting the `table_name` in the `Config` object:
+///
+/// ```cpp
+/// sqlite_containers::Config config;
+/// config.db_path = "example.db";
+/// config.table_name = "table_name";
+/// sqlite_containers::KeyDB<int> key_db(config);
+/// key_db.connect();
+/// ```
+///
+/// ### Example of Using Transactions
+///
+/// You can execute multiple operations within a single transaction using the `execute_in_transaction` method:
+///
+/// ```cpp
+/// key_value_db.execute_in_transaction([&key_value_db] {
+///     key_value_db.insert("apple", 1.1);
+///     key_value_db.insert("banana", 2.2);
+/// });
+/// ```
+///
+/// ### Transaction Support for Data Manipulation
+///
+/// Some methods, such as `append`, `load`, and `reconcile`, support an optional transaction mode:
+///
+/// ```cpp
+/// std::set<int> int_keys = {1, 2, 3, 4};
+/// key_db.append(int_keys, sqlite_containers::TransactionMode::IMMEDIATE);
+/// ```
+///
+/// ## Configuration Options
+///
+/// The `Config` class allows customization of database settings:
+///
+/// ```cpp
+/// namespace sqlite_containers {
+///
+/// class Config {
+/// public:
+///     std::string db_path;                    ///< Path to the SQLite database file.
+///     std::string table_name;                 ///< Name of the database table.
+///     bool read_only = false;                 ///< Open the database in read-only mode.
+///     bool use_uri = false;                   ///< Use URI format for the database path.
+///     bool in_memory = false;                 ///< Open an in-memory database.
+///     bool use_async = false;                 ///< Enable asynchronous writes.
+///     int user_version = -1;                  ///< User-defined version number for the schema.
+///     int busy_timeout = 1000;                ///< Timeout for busy handler in milliseconds.
+///     int page_size = 4096;                   ///< Page size for the database.
+///     int cache_size = 2000;                  ///< Cache size in pages.
+///     int analysis_limit = 1000;              ///< Number of rows to analyze.
+///     int wal_autocheckpoint = 1000;          ///< WAL auto-checkpoint threshold.
+///     JournalMode journal_mode = JournalMode::DELETE_MODE;  ///< SQLite journal mode.
+///     SynchronousMode synchronous = SynchronousMode::FULL;  ///< SQLite synchronous mode.
+///     LockingMode locking_mode = LockingMode::NORMAL;       ///< SQLite locking mode.
+///     AutoVacuumMode auto_vacuum_mode = AutoVacuumMode::NONE; ///< SQLite auto-vacuum mode.
+///     TransactionMode default_txn_mode = TransactionMode::IMMEDIATE; ///< Default transaction mode.
+/// };
+///
+/// } // namespace sqlite_containers
+/// ```
+///
+/// You can configure the default transaction mode, table name, database path, and other important parameters.
+///
+/// ## Struct Support
+///
+/// For classes that support key-value pairs, the value must be a structure composed of simple data types.
+///
