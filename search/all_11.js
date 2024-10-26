@@ -1,10 +1,20 @@
 var searchData=
 [
-  ['table_5fname_0',['table_name',['../classsqlite__containers_1_1Config.html#a381b44814206e404fac5f01b7cf2ed27',1,'sqlite_containers::Config']]],
-  ['tempstore_1',['TempStore',['../namespacesqlite__containers.html#a3c859e4745195b2ca4fcc377e990e456',1,'sqlite_containers']]],
-  ['to_5fstring_2',['to_string',['../namespacesqlite__containers.html#a04a41d6d0c4ffc172429c6ce9f8ff59a',1,'sqlite_containers::to_string(const JournalMode &amp;mode)'],['../namespacesqlite__containers.html#a5739ec0f9dec1b8f6d364fe89568ebbd',1,'sqlite_containers::to_string(const SynchronousMode &amp;mode)'],['../namespacesqlite__containers.html#a0b3291e8514500b3b0401f503511a7a6',1,'sqlite_containers::to_string(const LockingMode &amp;mode)'],['../namespacesqlite__containers.html#ace8d70ddcc889b9bb555246a51774964',1,'sqlite_containers::to_string(const AutoVacuumMode &amp;mode)'],['../namespacesqlite__containers.html#a81f431435d94d44ba1994639817dc30b',1,'sqlite_containers::to_string(const TransactionMode &amp;mode)']]],
-  ['transaction_20support_20for_20data_20manipulation_3',['Transaction Support for Data Manipulation',['../index.html#autotoc_md6',1,'']]],
-  ['transactionmode_4',['TransactionMode',['../namespacesqlite__containers.html#a3a66e473d14178c29a61d3f88de2de37',1,'sqlite_containers']]],
-  ['transactions_5',['Example of Using Transactions',['../index.html#autotoc_md5',1,'']]],
-  ['truncate_6',['TRUNCATE',['../namespacesqlite__containers.html#ab679f1b68a929c696edfec4f2abd24d6a0a83d15fde12983f199bdeb76667660f',1,'sqlite_containers']]]
+  ['set_5fconfig_0',['set_config',['../classsqlite__containers_1_1BaseDB.html#acab5be617f08637edb04b24ecc1741b6',1,'sqlite_containers::BaseDB']]],
+  ['set_5fcount_1',['set_count',['../classsqlite__containers_1_1KeyMultiValueDB.html#abc7f06fdd31cb8b259a97c2c90c76aa7',1,'sqlite_containers::KeyMultiValueDB']]],
+  ['set_5fvalue_5fcount_2',['set_value_count',['../classsqlite__containers_1_1KeyMultiValueDB.html#a2ec3baf7b625a0b959f3c116f44c7cc8',1,'sqlite_containers::KeyMultiValueDB']]],
+  ['single_20database_3',['Example of Using Multiple Classes with a Single Database',['../index.html#autotoc_md4',1,'']]],
+  ['sqlite_20containers_4',['SQLite Containers',['../index.html',1,'']]],
+  ['sqlite_5fcontainers_5',['sqlite_containers',['../namespacesqlite__containers.html',1,'']]],
+  ['sqlite_5fcontainers_5fbusy_5fretry_5fdelay_5fms_6',['SQLITE_CONTAINERS_BUSY_RETRY_DELAY_MS',['../Utils_8hpp.html#a5d360819efaf4146584cde0cd9874101',1,'Utils.hpp']]],
+  ['sqlite_5fexception_7',['sqlite_exception',['../classsqlite__containers_1_1sqlite__exception.html',1,'sqlite_containers::sqlite_exception'],['../classsqlite__containers_1_1sqlite__exception.html#aed99f8f43f7980573b0123db80224e34',1,'sqlite_containers::sqlite_exception::sqlite_exception()']]],
+  ['sqlitestmt_8',['SqliteStmt',['../classsqlite__containers_1_1SqliteStmt.html',1,'sqlite_containers::SqliteStmt'],['../classsqlite__containers_1_1SqliteStmt.html#a21c399c4a0851a98bb5391b176c28233',1,'sqlite_containers::SqliteStmt::SqliteStmt()=default'],['../classsqlite__containers_1_1SqliteStmt.html#a045f2532d631ced4490aa9a4d85948a0',1,'sqlite_containers::SqliteStmt::SqliteStmt(sqlite3 *sqlite_db, const char *query)'],['../classsqlite__containers_1_1SqliteStmt.html#a77e6f283c338a8f42aeb2de773160996',1,'sqlite_containers::SqliteStmt::SqliteStmt(sqlite3 *sqlite_db, const std::string &amp;query)']]],
+  ['sqlitestmt_2ehpp_9',['SqliteStmt.hpp',['../SqliteStmt_8hpp.html',1,'']]],
+  ['std_10',['std',['../namespacestd.html',1,'']]],
+  ['step_11',['step',['../classsqlite__containers_1_1SqliteStmt.html#aa8fbe0efbd6db9af800b9a2d8fe28d10',1,'sqlite_containers::SqliteStmt']]],
+  ['struct_20support_12',['Struct Support',['../index.html#autotoc_md8',1,'']]],
+  ['support_13',['Struct Support',['../index.html#autotoc_md8',1,'']]],
+  ['support_20for_20data_20manipulation_14',['Transaction Support for Data Manipulation',['../index.html#autotoc_md6',1,'']]],
+  ['synchronous_15',['synchronous',['../classsqlite__containers_1_1Config.html#a75629e981ef9219cb6383232ce5a2bb8',1,'sqlite_containers::Config']]],
+  ['synchronousmode_16',['SynchronousMode',['../namespacesqlite__containers.html#a1473851a083bec46d9d2bfe3906d63b2',1,'sqlite_containers']]]
 ];

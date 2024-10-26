@@ -6,6 +6,7 @@ var hierarchy =
       [ "sqlite_containers::KeyValueDB< KeyT, ValueT >", "classsqlite__containers_1_1KeyValueDB.html", null ]
     ] ],
     [ "sqlite_containers::Config", "classsqlite__containers_1_1Config.html", null ],
+    [ "std::hash< MyStruct >", "structstd_1_1hash_3_01MyStruct_01_4.html", null ],
     [ "MyStruct", "structMyStruct.html", null ],
     [ "std::runtime_error", null, [
       [ "sqlite_containers::sqlite_exception", "classsqlite__containers_1_1sqlite__exception.html", null ]

@@ -9,5 +9,8 @@ var annotated_dup =
       [ "sqlite_exception", "classsqlite__containers_1_1sqlite__exception.html", "classsqlite__containers_1_1sqlite__exception" ],
       [ "SqliteStmt", "classsqlite__containers_1_1SqliteStmt.html", "classsqlite__containers_1_1SqliteStmt" ]
     ] ],
+    [ "std", "namespacestd.html", [
+      [ "hash< MyStruct >", "structstd_1_1hash_3_01MyStruct_01_4.html", "structstd_1_1hash_3_01MyStruct_01_4" ]
+    ] ],
     [ "MyStruct", "structMyStruct.html", "structMyStruct" ]
 ];

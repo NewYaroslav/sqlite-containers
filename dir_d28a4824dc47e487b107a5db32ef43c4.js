@@ -1,6 +1,7 @@
 var dir_d28a4824dc47e487b107a5db32ef43c4 =
 [
     [ "example-map-blob.cpp", "example-map-blob_8cpp.html", "example-map-blob_8cpp" ],
+    [ "example-map-set-2.cpp", "example-map-set-2_8cpp.html", "example-map-set-2_8cpp" ],
     [ "example-map-set.cpp", "example-map-set_8cpp.html", "example-map-set_8cpp" ],
     [ "example-map-struct.cpp", "example-map-struct_8cpp.html", "example-map-struct_8cpp" ],
     [ "example-map.cpp", "example-map_8cpp.html", "example-map_8cpp" ],
