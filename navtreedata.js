@@ -68,9 +68,9 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "BaseDB_8hpp.html",
-"classsqlite__containers_1_1KeyDB.html#afb3932e6122485ba2ffb6f408d4aa972",
-"classsqlite__containers_1_1KeyValueDB.html#ad27541038701ee557b8da548b9de043f"
+"classsqlite__containers_1_1KeyMultiValueDB.html#a4f37a9d2e3196d147655c92dabfbdd1c",
+"classsqlite__containers_1_1SqliteStmt.html#aa71bbe2103a8ecec29ebbe08fd8f60db"
 ];
 
-var SYNCONMSG = 'click to disable panel synchronisation';
-var SYNCOFFMSG = 'click to enable panel synchronisation';
+var SYNCONMSG = 'click to disable panel synchronization';
+var SYNCOFFMSG = 'click to enable panel synchronization';
