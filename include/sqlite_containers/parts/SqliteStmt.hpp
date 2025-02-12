@@ -188,7 +188,7 @@ namespace sqlite_containers {
         template<typename T>
         inline bool bind_value(const int &index, const T& value,
                 typename std::enable_if<std::is_same<T, std::string>::value>::type* = 0) {
-            return (sqlite3_bind_text(m_stmt, index, value.c_str(), -1, SQLITE_STATIC) == SQLITE_OK);
+            return (sqlite3_bind_text(m_stmt, index, value.c_str(), static_cast<int>(value.size()), SQLITE_STATIC) == SQLITE_OK);
         }
 
         template<typename T>
