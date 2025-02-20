@@ -10,6 +10,10 @@
 #include <future>
 #include <mutex>
 #include <atomic>
+#ifdef _WIN32
+#include <codecvt>
+#include <locale>
+#endif
 
 #if SQLITE_THREADSAFE != 1
 #error "The project must be built for sqlite multithreading! Set the SQLITE_THREADSAFE=1"
@@ -233,12 +237,19 @@ namespace sqlite_containers {
         /// \param config Configuration settings, including the path to the database file.
         /// \throws sqlite_exception If the directories cannot be created.
         void db_create_directories(const Config &config) {
-            fs::path file_path(config.db_path);
+#           ifdef _WIN32
+            // Convert UTF-8 string to wide string for Windows
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+            std::wstring wide_path = converter.from_bytes(config.db_path);
+            std::filesystem::path file_path(wide_path);
+#           else
+            std::filesystem::path file_path(config.db_path);
+#           endif
             fs::path parent_dir = file_path.parent_path();
-            if (parent_dir.empty()) return;
-            if (!fs::exists(parent_dir)) {
-                if (!fs::create_directories(parent_dir)) {
-                    throw sqlite_exception("Failed to create directories for path: " + parent_dir.string());
+            if (!std::filesystem::exists(parent_dir)) {
+                std::error_code ec;
+                if (!std::filesystem::create_directories(parent_dir, ec)) {
+                    throw std::runtime_error("Failed to create directories for path: " + config.db_path);
                 }
             }
         }
